@@ -5,8 +5,6 @@ let sftp = new Client();
 import { program } from 'commander';
 import * as fs from "node:fs";
 import * as Path from "node:path";
-import {stat} from "node:fs";
-
 
 program.name('Simple Node SFTP')
     .description("A simple node program to push or pull fi+les using ssh2-sftp-client")
@@ -32,7 +30,7 @@ program.command('download')
     .argument('<src>', 'src path on remote machine of files to download')
     .argument('<dest>', 'src path on local server of files to download')
     .action((username: string, password: string, url: string, port: string, src: string, dest: string) => {
-        exporToSFTP(username, password, url, port, src, dest);
+        importFromSFTP(username, password, url, port, src, dest);
     })
 
 const exporToSFTP = function (username: string, password: string, url: string, port: string, src: string, dest: string) {
