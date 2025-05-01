@@ -94,11 +94,10 @@ const importFromSFTP = async function (username: string, password: string, url: 
         port: port,
         username: username,
         password: password
-    }).then(async () => {
-        let stats = await sftp.stat(src).then(stats => {
-            console.log(stats);
-            isDirectory = stats.isDirectory
-        })
+    }).then(() => {
+        return sftp.stat(src);
+    }).then(data => {
+       isDirectory = data.isDirectory
     }).catch(err => {
         console.log(err, 'catch error');
     }).then(() => {
