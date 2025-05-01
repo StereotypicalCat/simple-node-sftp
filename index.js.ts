@@ -29,8 +29,8 @@ program.command('download')
     .argument('<port>', 'ports of sftp server')
     .argument('<src>', 'src path on remote machine of files to download')
     .argument('<dest>', 'src path on local server of files to download')
-    .action((username: string, password: string, url: string, port: string, src: string, dest: string) => {
-        importFromSFTP(username, password, url, port, src, dest);
+    .action(async (username: string, password: string, url: string, port: string, src: string, dest: string) => {
+        await importFromSFTP(username, password, url, port, src, dest);
     })
 
 const exporToSFTP = function (username: string, password: string, url: string, port: string, src: string, dest: string) {
@@ -84,20 +84,21 @@ const exporToSFTP = function (username: string, password: string, url: string, p
     }
 }
 
-const importFromSFTP = function (username: string, password: string, url: string, port: string, src: string, dest: string) {
+const importFromSFTP = async function (username: string, password: string, url: string, port: string, src: string, dest: string) {
 
     // Check whether file or dir
     let isDirectory: boolean = null
 
-    sftp.connect({
+    await sftp.connect({
         host: url,
         port: port,
         username: username,
         password: password
-    }).then(() => {
-        let stats = sftp.stat(src)
-        console.log(stats, 'the stats info');
-        isDirectory = stats.isDirectory
+    }).then(async () => {
+        let stats = await sftp.stat(src).then(stats => {
+            console.log(stats);
+            isDirectory = stats.isDirectory
+        })
     }).catch(err => {
         console.log(err, 'catch error');
     }).then(() => {
