@@ -86,8 +86,8 @@ const exporToSFTP = function (username: string, password: string, url: string, p
 
 const importFromSFTP = async function (username: string, password: string, url: string, port: string, src: string, dest: string) {
 
-    // Check whether file or dir
-    let isDirectory: boolean = null
+
+    console.log("Creating a connection to SFTP server...")
 
     await sftp.connect({
         host: url,
@@ -97,58 +97,25 @@ const importFromSFTP = async function (username: string, password: string, url: 
     }).then(() => {
         return sftp.stat(src);
     }).then(data => {
-       isDirectory = data.isDirectory
+        let isDirectory = data.isDirectory;
+        console.log("is directory: " + isDirectory)
+        if (isDirectory){
+            // Connect!
+            return sftp.downloadDir(src, dest);
+        }
+        else{
+            // Cannot download a file to a path that doesnt exist.
+            // Make sure dest path exists on local machine.
+            const dirToCreate = Path.dirname(dest)
+            console.log(dirToCreate);
+            fs.mkdirSync(dirToCreate, { recursive: true });
+            return sftp.get(src, dest)
+        }
     }).catch(err => {
         console.log(err, 'catch error');
     }).then(() => {
         sftp.end();
     })
-
-    console.log(isDirectory)
-
-    if (isDirectory === null){
-        console.log("The path you input is not exist!")
-        return
-    }
-
-    if (isDirectory){
-        // Connect!
-        console.log("Creating a connection to SFTP server...")
-
-        sftp.connect({
-            host: url,
-            port: port,
-            username: username,
-            password: password
-        }).then(() => {
-            return sftp.downloadDir(src, dest);
-        }).catch(err => {
-            console.log(err, 'catch error');
-        }).then(() => {
-            sftp.end();
-        })
-    }
-    else{
-        // Connect!
-        console.log("Creating a connection to SFTP server...")
-
-        const dirToCreate = Path.dirname(dest)
-        console.log(dirToCreate);
-        fs.mkdirSync(dirToCreate, { recursive: true });
-
-        sftp.connect({
-            host: url,
-            port: port,
-            username: username,
-            password: password
-        }).then(() => {
-            return sftp.get(src, dest)
-        }).catch(err => {
-            console.log(err, 'catch error');
-        }).then(() => {
-            sftp.end();
-        })
-    }
 }
 
 program.parse();
