@@ -96,6 +96,7 @@ const importFromSFTP = function (username: string, password: string, url: string
         password: password
     }).then(() => {
         let stats = sftp.stat(src)
+        console.log(stats, 'the stats info');
         isDirectory = stats.isDirectory
     }).catch(err => {
         console.log(err, 'catch error');
